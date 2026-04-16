@@ -1,0 +1,233 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font-sans,sans-serif);color:var(--color-text-primary);background:transparent;padding:12px 0}
+h2.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)}
+.tree-wrap{padding:8px 0 16px}
+.section-title{font-size:13px;font-weight:500;color:var(--color-text-secondary);letter-spacing:.04em;text-transform:uppercase;margin:18px 0 8px 12px}
+.node{display:flex;flex-direction:column;padding:0}
+.node-header{display:flex;align-items:flex-start;gap:10px;cursor:pointer;padding:6px 10px 6px 0;border-radius:6px;transition:background .15s;user-select:none}
+.node-header:hover{background:var(--color-background-secondary)}
+.indent{width:20px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--color-text-tertiary)}
+.icon{width:26px;height:26px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
+.label-wrap{flex:1;min-width:0}
+.label{font-size:14px;font-weight:500;color:var(--color-text-primary);line-height:1.3}
+.sub{font-size:12px;color:var(--color-text-secondary);margin-top:1px;line-height:1.4}
+.caret{font-size:11px;color:var(--color-text-tertiary);margin-top:3px;transition:transform .2s;flex-shrink:0}
+.caret.open{transform:rotate(90deg)}
+.children{padding-left:28px;border-left:1px solid var(--color-border-tertiary);margin-left:22px;display:none}
+.children.open{display:block}
+.detail-box{margin:4px 0 8px 0;padding:10px 12px;border-radius:8px;background:var(--color-background-secondary);border:1px solid var(--color-border-tertiary)}
+.detail-box .dtitle{font-size:13px;font-weight:500;margin-bottom:4px;color:var(--color-text-primary)}
+.detail-box .ddef{font-size:12px;color:var(--color-text-secondary);line-height:1.5;margin-bottom:6px}
+.tags{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:6px}
+.tag{font-size:11px;padding:2px 7px;border-radius:4px;font-weight:500}
+.tag.why{background:#E1F5EE;color:#085041}.tag.who{background:#E6F1FB;color:#0C447C}.tag.ex{background:#FAEEDA;color:#633806}
+@media(prefers-color-scheme:dark){
+  .tag.why{background:#04342C;color:#9FE1CB}
+  .tag.who{background:#042C53;color:#B5D4F4}
+  .tag.ex{background:#412402;color:#FAC775}
+}
+.ex-row{font-size:12px;color:var(--color-text-secondary);font-family:var(--font-mono,monospace);background:var(--color-background-tertiary);border-radius:4px;padding:4px 8px;margin-top:4px;word-break:break-all}
+.badge{font-size:10px;padding:1px 5px;border-radius:3px;font-weight:500;margin-left:6px;vertical-align:middle}
+.badge.basic{background:#EAF3DE;color:#27500A}.badge.adv{background:#FBEAF0;color:#72243E}
+@media(prefers-color-scheme:dark){
+  .badge.basic{background:#173404;color:#C0DD97}
+  .badge.adv{background:#4B1528;color:#F4C0D1}
+}
+</style>
+</head>
+<body>
+<h2 class="sr-only">Complete Git knowledge tree from basic to advanced, covering what Git is, all major clients and platforms, core commands, branching, collaboration, and advanced workflows</h2>
+
+<div class="tree-wrap" id="tree"></div>
+
+<script>
+const data = [
+  {
+    icon:"🌳", color:"#E1F5EE", label:"Git", badge:"basic",
+    sub:"Version control system — tracks changes in code",
+    def:"Git is a distributed version control system (VCS) created by Linus Torvalds in 2005. It records every change to your files over time so you can recall any version later.",
+    why:"Keeps history of every change. Lets teams collaborate without overwriting each other. Enables branching, experiments, rollbacks.",
+    who:"Every developer, DevOps engineer, data scientist, writer who codes.",
+    ex:"git --version",
+    children:[
+      {
+        icon:"🖥️", color:"#E6F1FB", label:"Git Clients & Platforms", badge:null, sub:"Where you use Git",
+        def:"Git itself is a command-line tool. Clients are apps/platforms that wrap Git with a UI or hosting service.",
+        why:"Makes Git easier to use, visualise, and collaborate at scale.",
+        who:"Individuals, open-source contributors, enterprise teams.",
+        ex:"",
+        children:[
+          {icon:"🐙",color:"#E6F1FB",label:"GitHub",badge:"basic",sub:"World's largest code hosting platform",def:"GitHub is a web-based platform by Microsoft that hosts Git repositories. It adds pull requests, issues, Actions (CI/CD), GitHub Pages, and a massive open-source community.",why:"Remote backup, collaboration, CI/CD pipelines, portfolio, open source.",who:"Students, developers, companies, open-source maintainers.",ex:"git remote add origin https://github.com/user/repo.git",children:[]},
+          {icon:"🦊",color:"#EEEDFE",label:"GitLab",badge:"basic",sub:"DevOps platform with built-in CI/CD",def:"GitLab is an open-core platform that offers Git hosting plus a full DevOps lifecycle: CI/CD, Docker registry, issue boards, and more — self-hostable.",why:"End-to-end DevOps in one tool. Companies host it privately.",who:"Enterprise teams, DevOps engineers, agencies wanting self-hosted control.",ex:"git remote add origin https://gitlab.com/user/repo.git",children:[]},
+          {icon:"🪣",color:"#FAEEDA",label:"Bitbucket",badge:"basic",sub:"Atlassian's Git hosting (Jira integration)",def:"Bitbucket is Atlassian's Git hosting service. Deep integration with Jira and Trello. Supports both Git and Mercurial (legacy).",why:"Tight Jira/Confluence integration. Common in enterprise Atlassian shops.",who:"Agile teams using Atlassian stack.",ex:"git remote add origin https://bitbucket.org/user/repo.git",children:[]},
+          {icon:"💻",color:"#EAF3DE",label:"Git Bash",badge:"basic",sub:"Git's terminal emulator for Windows",def:"Git Bash is a command-line shell for Windows that bundles Git + a Bash emulator (MinGW). It gives Windows users a Unix-like terminal to run all Git commands.",why:"Windows users get full Git CLI + Unix tools like ls, grep, ssh.",who:"Windows developers who prefer the terminal.",ex:"git init  →  runs natively inside Git Bash",children:[]},
+          {icon:"🖼️",color:"#FAECE7",label:"Git GUI",badge:"basic",sub:"Bundled visual interface for Git",def:"Git GUI is the minimal graphical client that ships with Git (git gui command). It provides a simple window for staging, committing, and browsing history.",why:"Visual alternative to command line, no extra install needed.",who:"Beginners who want a quick GUI without installing a third-party app.",ex:"git gui   (opens the window)",children:[]},
+          {icon:"🐢",color:"#FBEAF0",label:"TortoiseGit",badge:"basic",sub:"Windows Explorer right-click Git integration",def:"TortoiseGit integrates Git into Windows File Explorer. Right-click any folder for Git actions (commit, push, pull, diff, log).",why:"Instant visual feedback in Explorer. No need to open a terminal.",who:"Windows power users, non-developer team members managing code.",ex:"Right-click folder → TortoiseGit → Commit",children:[]},
+          {icon:"🍋",color:"#FAEEDA",label:"Sourcetree",badge:"basic",sub:"Free GUI by Atlassian for Git & Mercurial",def:"Sourcetree is a free desktop Git client by Atlassian (Mac & Windows). Visualises branches, commits, and merges with a clean graph view.",why:"Full visual branch graph, built-in Gitflow support, free.",who:"Developers who want a powerful GUI without opening VS Code.",ex:"Clone repo → visualise branch tree in the UI",children:[]},
+          {icon:"💡",color:"#E1F5EE",label:"VS Code Git",badge:"basic",sub:"Built-in source control in VS Code",def:"Visual Studio Code has native Git support in the Source Control panel. You can stage, commit, push, pull, merge, and view diffs inside the editor.",why:"No context-switching — Git where you code.",who:"Every VS Code user.",ex:"Ctrl+Shift+G  →  opens Source Control panel",children:[]},
+          {icon:"🪟",color:"#E6F1FB",label:"GitHub Desktop",badge:"basic",sub:"Official GUI from GitHub",def:"GitHub Desktop is a free, official GUI app by GitHub for Mac & Windows. Simplifies clone, commit, push, pull, and pull requests.",why:"Easiest GUI for GitHub beginners. Visual branch management.",who:"Beginners, non-engineers collaborating on GitHub.",ex:"File → Clone repository → push changes via button",children:[]},
+        ]
+      },
+      {
+        icon:"⚙️", color:"#EAF3DE", label:"Core Git Concepts", badge:"basic", sub:"The building blocks you must know",
+        def:"The fundamental objects and ideas that make Git work.",
+        why:"Understanding these lets you use Git confidently, not by trial and error.",
+        who:"Every Git user.",
+        ex:"",
+        children:[
+          {icon:"📁",color:"#EAF3DE",label:"Repository (Repo)",badge:"basic",sub:"Your project's database",def:"A repository is a directory tracked by Git. It contains your files plus a hidden .git folder that stores the full history, branches, and configuration.",why:"Everything Git does happens inside a repo.",who:"All users.",ex:"git init   — creates a new local repo",children:[]},
+          {icon:"🎯",color:"#E6F1FB",label:"Working Tree, Index, HEAD",badge:"basic",sub:"Three states of your files",def:"Working tree = files you can see and edit. Index (staging area) = files ready for next commit. HEAD = pointer to the last commit on current branch.",why:"Understanding these 3 zones prevents most Git confusion.",who:"All users.",ex:"git status   — shows which zone each file is in",children:[]},
+          {icon:"📸",color:"#EEEDFE",label:"Commit",badge:"basic",sub:"Snapshot of your project at a point in time",def:"A commit is a saved snapshot with a unique SHA hash, author, timestamp, and message. Git history is a chain of commits.",why:"Commits are the core unit of history — undo, compare, rollback.",who:"All users.",ex:"git commit -m 'fix login bug'",children:[]},
+          {icon:"🌿",color:"#E1F5EE",label:"Branch",badge:"basic",sub:"Parallel line of development",def:"A branch is a lightweight pointer to a commit. Creating a branch lets you work on features or fixes in isolation without touching main code.",why:"Safe isolation — break things without breaking main.",who:"All users.",ex:"git checkout -b feature/login",children:[]},
+          {icon:"🔀",color:"#FAEEDA",label:"Merge",badge:"basic",sub:"Combine two branches",def:"Merging integrates the history of one branch into another. Creates a merge commit showing where the branches joined.",why:"Bring finished feature back into main.",who:"All users.",ex:"git merge feature/login",children:[]},
+          {icon:"🔗",color:"#FAECE7",label:"Remote",badge:"basic",sub:"Server-hosted copy of your repo",def:"A remote is a URL pointing to a repo on a server (GitHub, GitLab, etc.). 'origin' is the conventional name for the default remote.",why:"Push/pull code between local machine and the server.",who:"All users working in teams.",ex:"git remote -v   — list remotes",children:[]},
+          {icon:"🏷️",color:"#FBEAF0",label:"Tag",badge:"basic",sub:"Permanent label for a commit (e.g. v1.0)",def:"Tags mark specific commits as important, typically for release versions. Annotated tags store extra metadata (tagger, message).",why:"Create clear release milestones in history.",who:"Release managers, open-source maintainers.",ex:"git tag -a v1.0.0 -m 'First release'",children:[]},
+        ]
+      },
+      {
+        icon:"📟", color:"#FAEEDA", label:"Essential Commands", badge:"basic", sub:"The commands you use every day",
+        def:"Day-to-day Git commands every developer needs to know.",
+        why:"These are unavoidable — mastering them makes Git feel natural.",
+        who:"All Git users.",
+        ex:"",
+        children:[
+          {icon:"🆕",color:"#E1F5EE",label:"git init / clone",badge:"basic",sub:"Start a repo from scratch or from remote",def:"git init creates a new repo in the current folder. git clone <url> downloads an existing remote repo to your machine.",why:"Entry point for every project.",who:"All users.",ex:"git clone https://github.com/user/project.git",children:[]},
+          {icon:"📋",color:"#E6F1FB",label:"git status / log",badge:"basic",sub:"See what changed and full history",def:"git status shows modified/staged/untracked files. git log shows commit history with author, date, and message.",why:"Situational awareness — always run before committing.",who:"All users.",ex:"git log --oneline --graph",children:[]},
+          {icon:"➕",color:"#EEEDFE",label:"git add",badge:"basic",sub:"Stage files for the next commit",def:"git add moves file changes into the staging area (index). Only staged changes are included in the next commit.",why:"Lets you commit partial changes precisely.",who:"All users.",ex:"git add .   or   git add src/login.js",children:[]},
+          {icon:"🛠️",color:"#FAEEDA",label:"git push / pull / fetch",badge:"basic",sub:"Sync local and remote repos",def:"git push uploads commits to remote. git pull fetches + merges. git fetch downloads without merging.",why:"How code moves between your machine and the server.",who:"All users.",ex:"git push origin main",children:[]},
+          {icon:"🔍",color:"#FAECE7",label:"git diff",badge:"basic",sub:"Show exactly what changed",def:"git diff compares working tree vs staging, or between commits/branches. Shows added/removed lines.",why:"Review changes before committing.",who:"All users.",ex:"git diff HEAD~1 HEAD",children:[]},
+          {icon:"🗑️",color:"#FCEBEB",label:"git stash",badge:"basic",sub:"Temporarily save uncommitted changes",def:"git stash puts dirty working tree aside so you can switch branches or pull without committing half-done work.",why:"Clean context switch without losing work.",who:"All users.",ex:"git stash   →   git stash pop",children:[]},
+        ]
+      },
+      {
+        icon:"🔬", color:"#EEEDFE", label:"Intermediate Git", badge:"basic", sub:"Level up your workflow",
+        def:"Techniques for cleaner history, better collaboration, and fixing mistakes.",
+        why:"Real-world teams expect these skills.",
+        who:"Developers who've used Git for a few months.",
+        ex:"",
+        children:[
+          {icon:"♻️",color:"#EEEDFE",label:"Rebase",badge:"basic",sub:"Replay commits onto another base",def:"Rebase re-applies your commits on top of another branch, creating a linear history. Unlike merge, it rewrites commit hashes.",why:"Clean, linear history without merge commits.",who:"Developers who want neat logs.",ex:"git rebase main",children:[]},
+          {icon:"🍒",color:"#FBEAF0",label:"Cherry-pick",badge:"basic",sub:"Apply a single commit from another branch",def:"Cherry-pick copies a specific commit from one branch and applies it to another, without merging the whole branch.",why:"Backport a hotfix to an older release branch.",who:"Release engineers, developers.",ex:"git cherry-pick a3f8c1d",children:[]},
+          {icon:"✏️",color:"#E1F5EE",label:"git commit --amend",badge:"basic",sub:"Fix the last commit message or content",def:"Replaces the most recent commit with a new one. Use to fix typos in message or add a forgotten file.",why:"Keep history clean without making a separate 'oops' commit.",who:"All developers.",ex:"git commit --amend -m 'Better message'",children:[]},
+          {icon:"↩️",color:"#FAECE7",label:"git reset / revert",badge:"basic",sub:"Undo changes safely or forcefully",def:"git revert creates a new commit that undoes a past one (safe, keeps history). git reset moves HEAD backwards (can be destructive).",why:"Rollback bugs without losing record.",who:"All developers.",ex:"git revert HEAD   or   git reset --soft HEAD~1",children:[]},
+          {icon:"🧩",color:"#E6F1FB",label:"git bisect",badge:"basic",sub:"Binary search to find bug-introducing commit",def:"git bisect automates a binary search through history, marking commits as good/bad until the breaking commit is isolated.",why:"Find the exact commit that introduced a bug in minutes.",who:"Debugging developers, QA engineers.",ex:"git bisect start → git bisect bad → git bisect good v1.0",children:[]},
+          {icon:"📄",color:"#EAF3DE",label:".gitignore",badge:"basic",sub:"Tell Git which files to ignore",def:".gitignore is a plain text file listing patterns for files Git should never track — build artifacts, secrets, node_modules, etc.",why:"Keeps repo clean. Prevents accidentally pushing secrets.",who:"Every developer.",ex:"echo 'node_modules/' >> .gitignore",children:[]},
+        ]
+      },
+      {
+        icon:"🚀", color:"#FAECE7", label:"Advanced Git", badge:"adv", sub:"Power-user techniques",
+        def:"Deep Git features used in large teams, CI/CD, and complex workflows.",
+        why:"Essential for senior engineers, DevOps, and repo maintainers.",
+        who:"Senior developers, DevOps, open-source maintainers.",
+        ex:"",
+        children:[
+          {icon:"📦",color:"#EEEDFE",label:"Submodules & Subtrees",badge:"adv",sub:"Repos inside repos",def:"Submodules embed another Git repo as a dependency at a fixed commit. Subtrees merge another repo's history into a subdirectory.",why:"Manage shared libraries/code across multiple projects.",who:"Monorepo architects, library maintainers.",ex:"git submodule add https://github.com/lib/utils.git",children:[]},
+          {icon:"🪝",color:"#E1F5EE",label:"Git Hooks",badge:"adv",sub:"Scripts that run on Git events",def:"Hooks are shell scripts in .git/hooks/ triggered by actions like pre-commit, post-merge, pre-push. Used for linting, tests, commit message validation.",why:"Enforce standards automatically before code reaches remote.",who:"DevOps, tech leads.",ex:"pre-commit hook → run eslint before every commit",children:[]},
+          {icon:"🌊",color:"#E6F1FB",label:"Git Flow",badge:"adv",sub:"Branching model for release management",def:"Git Flow defines long-lived branches (main, develop) and short-lived ones (feature/*, hotfix/*, release/*) with strict merge rules for structured releases.",why:"Predictable release cycle, clear branch purpose.",who:"Teams shipping versioned software.",ex:"git flow feature start login-page",children:[]},
+          {icon:"✅",color:"#EAF3DE",label:"Pull Requests / Merge Requests",badge:"adv",sub:"Code review before merging",def:"PRs (GitHub/Bitbucket) or MRs (GitLab) are requests to merge a branch. Team reviews code, leaves comments, runs CI checks before approving.",why:"Gate code quality, share knowledge, catch bugs.",who:"All team developers.",ex:"git push origin feature/x → open PR on GitHub",children:[]},
+          {icon:"🔐",color:"#FBEAF0",label:"Signing Commits (GPG)",badge:"adv",sub:"Cryptographically verify commit authorship",def:"GPG-signed commits prove the commit came from you. GitHub shows a 'Verified' badge. Prevents impersonation.",why:"Security — ensures commit integrity in critical projects.",who:"Open-source maintainers, security-conscious teams.",ex:"git config --global commit.gpgsign true",children:[]},
+          {icon:"🗂️",color:"#FAEEDA",label:"git reflog",badge:"adv",sub:"Recover lost commits & branches",def:"reflog records every position HEAD has been at, even after reset or branch deletion. Use it to recover 'lost' commits.",why:"Your safety net — recover almost anything deleted accidentally.",who:"All developers (especially after mistakes).",ex:"git reflog   →   git checkout -b recovered abc1234",children:[]},
+          {icon:"📐",color:"#FAECE7",label:"Interactive Rebase",badge:"adv",sub:"Rewrite, squash, reorder commits",def:"git rebase -i lets you squash multiple commits into one, reorder them, edit messages, or drop unwanted commits before pushing.",why:"Craft perfect commit history before sharing with team.",who:"Experienced developers.",ex:"git rebase -i HEAD~5",children:[]},
+          {icon:"🌐",color:"#EEEDFE",label:"Git LFS",badge:"adv",sub:"Large File Storage for binaries",def:"Git LFS (Large File Storage) replaces large binary files (videos, datasets, PSDs) with text pointers, storing the actual file on a separate LFS server.",why:"Keeps repo size small when projects contain large assets.",who:"Game devs, data scientists, designers.",ex:"git lfs track '*.psd'   →   git add .gitattributes",children:[]},
+          {icon:"🔄",color:"#E1F5EE",label:"CI/CD Integration",badge:"adv",sub:"Automate tests & deploys on push",def:"CI/CD tools (GitHub Actions, GitLab CI, Jenkins) listen for Git events (push, PR) and run pipelines: build, test, deploy automatically.",why:"Catch bugs early, ship faster, reduce manual work.",who:"DevOps engineers, full-stack teams.",ex:".github/workflows/ci.yml → runs on every push",children:[]},
+        ]
+      },
+    ]
+  }
+];
+
+function makeNode(n, depth){
+  const wrap = document.createElement('div');
+  wrap.className='node';
+  const header = document.createElement('div');
+  header.className='node-header';
+
+  const indent = document.createElement('div');
+  indent.className='indent';
+  indent.style.marginLeft=(depth*14)+'px';
+  if(n.children && n.children.length) indent.textContent='▶';
+  else indent.textContent='•';
+
+  const iconEl = document.createElement('div');
+  iconEl.className='icon';
+  iconEl.style.background=n.color+'44';
+  iconEl.textContent=n.icon;
+
+  const lw = document.createElement('div');
+  lw.className='label-wrap';
+  const labelEl = document.createElement('div');
+  labelEl.className='label';
+  labelEl.textContent=n.label;
+  if(n.badge){
+    const b=document.createElement('span');
+    b.className='badge '+(n.badge==='adv'?'adv':'basic');
+    b.textContent=n.badge==='adv'?'Advanced':'Basic';
+    labelEl.appendChild(b);
+  }
+  const subEl = document.createElement('div');
+  subEl.className='sub';
+  subEl.textContent=n.sub;
+  lw.appendChild(labelEl);
+  lw.appendChild(subEl);
+
+  const caret = document.createElement('div');
+  caret.className='caret';
+  if(n.children && n.children.length) caret.textContent='▶';
+
+  header.appendChild(indent);
+  header.appendChild(iconEl);
+  header.appendChild(lw);
+  if(n.children && n.children.length) header.appendChild(caret);
+  wrap.appendChild(header);
+
+  const detail = document.createElement('div');
+  detail.className='detail-box';
+  detail.style.display='none';
+  detail.style.marginLeft=(depth*14+36)+'px';
+
+  let html=`<div class="dtitle">${n.label}</div><div class="ddef">${n.def}</div>`;
+  if(n.why) html+=`<div class="tags"><span class="tag why">Why use it</span></div><div class="ddef">${n.why}</div>`;
+  if(n.who) html+=`<div class="tags"><span class="tag who">Who uses it</span></div><div class="ddef">${n.who}</div>`;
+  if(n.ex) html+=`<div class="tags"><span class="tag ex">Example</span></div><div class="ex-row">${n.ex}</div>`;
+  detail.innerHTML=html;
+  wrap.appendChild(detail);
+
+  const children = document.createElement('div');
+  children.className='children';
+  if(n.children) n.children.forEach(c=>children.appendChild(makeNode(c,depth+1)));
+  wrap.appendChild(children);
+
+  let open=false;
+  let detOpen=false;
+  header.addEventListener('click',()=>{
+    if(n.children && n.children.length){
+      open=!open;
+      children.classList.toggle('open',open);
+      caret.classList.toggle('open',open);
+      indent.textContent=open?'▼':'▶';
+    }
+    detOpen=!detOpen;
+    detail.style.display=detOpen?'block':'none';
+  });
+
+  if(depth===0){
+    open=true;
+    children.classList.add('open');
+    if(caret) caret.classList.add('open');
+    indent.textContent='▼';
+    detOpen=true;
+    detail.style.display='block';
+  }
+  return wrap;
+}
+
+const tree=document.getElementById('tree');
+data.forEach(n=>tree.appendChild(makeNode(n,0)));
+</script>
+</body>
+</html>
